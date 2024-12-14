@@ -5,7 +5,7 @@ import pandas as pd
 from tqdm import tqdm
 
 DATA_DIR = Path(__file__).parent / 'data'
-TARGETS_FILE = 'prediction_variables.txt'
+TARGETS_FILE = 'target.txt'
 SUBJECT_IDS_FILE = 'HCP_list_Yeo.txt'
 BEHAVIOR_DATA_FILE = 'HCP_s1200.csv'
 DATA_FILES = ['rsfc_atlas400_753_4.txt', 'rsfc_Yeo400_753_GSR.txt', 'scfp_atlas400_753.txt']
@@ -45,11 +45,23 @@ class HCPDataset(Dataset):
         return len(self.subjects)
     
     def __getitem__(self, index):
-        bahav_data = self.behavioral_df[self.behavioral_df['30Subject'] == self.id2subject[index]]
-        bahav_data = np.array(bahav_data[self.targets].values) # (num_targets,)
-        func_data = self.functional_data[index] # (dim_features,)
+        bahav_data = self.behavioral_df[self.behavioral_df['Subject'] == self.id2subject[index]]
+        bahav_data = np.array(bahav_data[self.targets].values)  # (num_targets,)
+        func_data = self.functional_data[index]  # (dim_features,)
         return {
-            'subject': self.id2subject[index],
-            'behavioral': bahav_data,
-            'functional': func_data
-        }
+            'input': func_data,
+            'labels': bahav_data  }
+    @classmethod
+    def behavioral_dim(cls, root=DATA_DIR):
+        with open(root / TARGETS_FILE) as f:
+            targets = f.read().splitlines()
+        return len(targets)
+    @classmethod
+    def func_dim(cls, root=DATA_DIR, data_file=DATA_FILES[1]):
+        data_path = root / data_file
+        with open(data_path, 'r') as f:
+            first_line = f.readline()
+        num_columns = len(first_line.strip().split())
+        print('fuc_dim')
+        print(num_columns)
+        return num_columns
