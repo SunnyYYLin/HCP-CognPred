@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.parallel
 from .backbone import get_backbone
 from data_process import HCPDataset
 
@@ -9,6 +10,8 @@ class BehaviorPredictionModel(nn.Module):
         self.backbone = get_backbone(config)
         self.predictor = nn.LazyLinear(config.target_dim)
         self._lazy_init()
+        self.backbone = torch.nn.DataParallel(self.backbone) 
+        self.predictor = torch.nn.DataParallel(self.predictor)  
         
     def _lazy_init(self):
         input_dim = HCPDataset.func_dim()
