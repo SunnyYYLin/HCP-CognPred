@@ -45,10 +45,11 @@ args = TrainingArguments(
     save_total_limit=2,
     load_best_model_at_end=True,
     metric_for_best_model='adjusted_mse',
-    fp16=True  
+    fp16=True,
+    greater_is_better=False,
 )
 call_backs = [
-    EarlyStoppingCallback(early_stopping_patience=200)
+    EarlyStoppingCallback(early_stopping_patience=10)
 ]
 
 trainer = Trainer(
@@ -58,7 +59,7 @@ trainer = Trainer(
     eval_dataset=val_dataset,    
     data_collator=None, 
     callbacks=call_backs,
-    compute_metrics=compute_metrics  
+    compute_metrics=compute_metrics 
 )
 #checkpoint_path = 'checkpoints/checkpoint-404'
 trainer.train()#(resume_from_checkpoint=checkpoint_path)
