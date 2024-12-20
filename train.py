@@ -2,64 +2,59 @@ from transformers import Trainer, TrainingArguments, EarlyStoppingCallback
 from data_process import HCPDataset
 from config import *
 from model.behav_pred import BehaviorPredictionModel
-import torch
-import torchmetrics
-from torch.utils.data import DataLoader
+from torch.utils.data import random_split
+from metrics import CognPredMetrics
 
-
-def compute_metrics(eval_pred):
-    predictions, labels = eval_pred
-    predictions = torch.tensor(predictions)
-    labels = torch.tensor(labels).squeeze(1)  
-    mse = (predictions - labels) ** 2
-    abs_labels_squared = labels ** 2 + 1e-3
-    adjusted_mse = mse / abs_labels_squared
-    mean_adjusted_mse = torch.mean(adjusted_mse)
-    
-    return {'adjusted_mse': mean_adjusted_mse.item()}
+# Set the config
+backbone_config = FNNConfig(
+    hidden_dims=[512, 128, 32]
+)
+config = PipelineConfig(
+    backbone_config=backbone_config
+)
 
 # Load the dataset
 print("Loading the dataset...")
-dataset = HCPDataset()
+dataset = HCPDataset(config)
 train_size = int(0.9 * len(dataset))
 val_size = len(dataset) - train_size
-train_dataset, val_dataset = torch.utils.data.random_split(dataset, [train_size, val_size])
-print("Dataset loaded.")
+train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+print(f"Train size: {len(train_dataset)}, Val size: {len(val_dataset)}")
 
 # Load the model
-config = FNNConfig()
 model = BehaviorPredictionModel(config)
+print(model)
 
 # Load the trainer
 args = TrainingArguments(
     output_dir='checkpoints',
-    num_train_epochs=1000,
-    per_device_train_batch_size=100,
-    per_device_eval_batch_size=100,
+    num_train_epochs=128,
+    per_device_train_batch_size=128,
+    per_device_eval_batch_size=128,
     logging_strategy='steps',
     eval_strategy='epoch',
+    eval_steps=1,
     logging_dir='logs',
     logging_steps=20,
     save_strategy='epoch',
     save_steps=1,
     save_total_limit=2,
     load_best_model_at_end=True,
-    metric_for_best_model='adjusted_mse',
+    metric_for_best_model='mape',
     fp16=True,
     greater_is_better=False,
 )
 call_backs = [
-    EarlyStoppingCallback(early_stopping_patience=10)
+    # EarlyStoppingCallback(early_stopping_patience=10)
 ]
 
 trainer = Trainer(
     model=model,
     args=args,
     train_dataset=train_dataset,  
-    eval_dataset=val_dataset,    
+    eval_dataset=val_dataset,
     data_collator=None, 
     callbacks=call_backs,
-    compute_metrics=compute_metrics 
+    compute_metrics=CognPredMetrics(config)
 )
-#checkpoint_path = 'checkpoints/checkpoint-404'
-trainer.train()#(resume_from_checkpoint=checkpoint_path)
+trainer.train()

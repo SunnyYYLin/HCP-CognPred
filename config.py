@@ -1,20 +1,22 @@
+from pathlib import Path
 from dataclasses import dataclass, field
-from data_process import HCPDataset
 
-behavioral_dim = HCPDataset.behavioral_dim()
-func_dim = HCPDataset.func_dim()
-@dataclass
-class CNNConfig:
-    backbone_type: str = 'cnn'
-    kernel_sizes: list[int] = field(default_factory=lambda: [19, 17, 15, 13, 11, 9])
-    num_filters: list[int] = field(default_factory=lambda: [32, 64, 128, 256, 512, 1024])
-    target_dim: int = behavioral_dim
+DATA_DIR = Path(__file__).parent / 'data'
 
 @dataclass
 class FNNConfig:
-    backbone_type: str = 'fc'
-    input_dim: int = func_dim
-    hidden_dims: list[int] = field(default_factory=lambda: [512, 128,32])
-    target_dim: int = behavioral_dim
+    backbone_type: str = 'fnn'
+    hidden_dims: list[int] = field(default_factory=lambda: [512, 128, 32])
 
-BackboneConfig = CNNConfig | FNNConfig
+BackboneConfig = FNNConfig
+
+@dataclass
+class PipelineConfig:
+    data_dir: str = DATA_DIR
+    input_dim: int = -1
+    target_dim: int = -1
+    pred_vars: list[str] = field(default_factory=lambda: [])
+    backbone_config: BackboneConfig = None
+    
+    def __post_init__(self):
+        self.target_dim = len(self.pred_vars)
