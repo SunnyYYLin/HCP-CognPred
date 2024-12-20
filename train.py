@@ -10,6 +10,7 @@ backbone_config = FNNConfig(
     hidden_dims=[512, 128, 32]
 )
 config = PipelineConfig(
+    pred_vars=['CardSort_Unadj', 'Flanker_Unadj'],
     backbone_config=backbone_config
 )
 
@@ -28,7 +29,7 @@ print(model)
 # Load the trainer
 args = TrainingArguments(
     output_dir='checkpoints',
-    num_train_epochs=128,
+    num_train_epochs=1024,
     per_device_train_batch_size=128,
     per_device_eval_batch_size=128,
     logging_strategy='steps',
@@ -45,7 +46,7 @@ args = TrainingArguments(
     greater_is_better=False,
 )
 call_backs = [
-    # EarlyStoppingCallback(early_stopping_patience=10)
+    EarlyStoppingCallback(early_stopping_patience=10)
 ]
 
 trainer = Trainer(

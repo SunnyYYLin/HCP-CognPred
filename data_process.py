@@ -26,6 +26,7 @@ class HCPDataset(Dataset):
         print(f"Loading behavioral data from {BEHAVIOR_DATA_FILE}")
         self.behav_df = pd.read_csv(self.root / BEHAVIOR_DATA_FILE)
         self.behav_df = self.behav_df[self.targets + [SUBJECT_KEY]]
+        self.behav_df = self.behav_df.sort_values(by=self.targets).reset_index(drop=True)
         print(f"Done! Shape: {self.behav_df.shape}")
         
         print(f"Loading brain data from {DATA_FILE}")
