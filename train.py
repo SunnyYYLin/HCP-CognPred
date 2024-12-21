@@ -6,8 +6,8 @@ from torch.utils.data import random_split
 from metrics import CognPredMetrics
 
 # Set the config
-backbone_config = FNNConfig(
-    hidden_dims=[2048, 512, 128],
+backbone_config = MLPConfig(
+    hidden_dims=[2048, 512, 128, 128],
     dropout=0.0
 )
 config = PipelineConfig(
@@ -45,7 +45,9 @@ args = TrainingArguments(
     save_total_limit=1,
     load_best_model_at_end=True,
     metric_for_best_model='r2',
+    max_grad_norm=1e4,
     fp16=True,
+    use_cpu=False,
 )
 call_backs = [
     EarlyStoppingCallback(early_stopping_patience=10)
