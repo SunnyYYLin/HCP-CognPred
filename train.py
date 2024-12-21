@@ -7,8 +7,8 @@ from metrics import CognPredMetrics
 
 # Set the config
 backbone_config = GCNConfig(
-    hidden_dims=[128, 64],
-    dropout=0.0
+    hidden_dims=[32],
+    dropout=0.1
 )
 config = PipelineConfig(
     pred_vars=['CardSort_Unadj', 'Flanker_Unadj'],
@@ -50,7 +50,7 @@ args = TrainingArguments(
     use_cpu=False,
 )
 call_backs = [
-    EarlyStoppingCallback(early_stopping_patience=10)
+    # EarlyStoppingCallback(early_stopping_patience=10)
 ]
 
 trainer = Trainer(
