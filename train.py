@@ -8,12 +8,11 @@ from metrics import CognPredMetrics
 # Set the config
 backbone_config = FNNConfig(
     hidden_dims=[2048, 512, 128],
-    dropout=0.1
+    dropout=0.0
 )
 config = PipelineConfig(
     pred_vars=['CardSort_Unadj', 'Flanker_Unadj'],
     backbone_config=backbone_config
-    
 )
 
 # Load the dataset
@@ -29,23 +28,24 @@ model = BehaviorPredictionModel(config)
 print(model)
 
 # Load the trainer
+output_dir = Path(__file__).parent / 'checkpoints' / config.abbrev()
+logging_dir = Path(__file__).parent / 'logs' / config.abbrev()
 args = TrainingArguments(
-    output_dir='checkpoints',
+    output_dir=output_dir,
     num_train_epochs=1024,
     per_device_train_batch_size=64,
     per_device_eval_batch_size=64,
     logging_strategy='steps',
     eval_strategy='epoch',
     eval_steps=1,
-    logging_dir='logs',
+    logging_dir=logging_dir,
     logging_steps=1,
     save_strategy='epoch',
-    save_steps=1,
-    save_total_limit=2,
+    save_steps=8,
+    save_total_limit=1,
     load_best_model_at_end=True,
-    metric_for_best_model='mape',
+    metric_for_best_model='r2',
     fp16=True,
-    greater_is_better=False,
 )
 call_backs = [
     EarlyStoppingCallback(early_stopping_patience=10)
