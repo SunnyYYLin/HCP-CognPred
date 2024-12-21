@@ -7,11 +7,13 @@ from metrics import CognPredMetrics
 
 # Set the config
 backbone_config = FNNConfig(
-    hidden_dims=[512, 128, 32]
+    hidden_dims=[2048, 512, 128],
+    dropout=0.1
 )
 config = PipelineConfig(
     pred_vars=['CardSort_Unadj', 'Flanker_Unadj'],
     backbone_config=backbone_config
+    
 )
 
 # Load the dataset
@@ -30,13 +32,13 @@ print(model)
 args = TrainingArguments(
     output_dir='checkpoints',
     num_train_epochs=1024,
-    per_device_train_batch_size=128,
-    per_device_eval_batch_size=128,
+    per_device_train_batch_size=64,
+    per_device_eval_batch_size=64,
     logging_strategy='steps',
     eval_strategy='epoch',
     eval_steps=1,
     logging_dir='logs',
-    logging_steps=20,
+    logging_steps=1,
     save_strategy='epoch',
     save_steps=1,
     save_total_limit=2,

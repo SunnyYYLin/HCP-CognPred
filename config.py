@@ -7,6 +7,7 @@ DATA_DIR = Path(__file__).parent / 'data'
 class FNNConfig:
     backbone_type: str = 'fnn'
     hidden_dims: list[int] = field(default_factory=lambda: [512, 128, 32])
+    dropout: float = 0.1
 
 BackboneConfig = FNNConfig
 

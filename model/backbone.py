@@ -13,10 +13,11 @@ def get_backbone(config: PipelineConfig):
 
 class FCBlock(nn.Module):
     def __init__(self, input_dim: int, output_dim: int, 
-                 activation_cls: nn.Module= nn.ReLU, dropout: float=0.5):
+                 activation_cls: nn.Module= nn.ReLU, dropout: float=0.1):
         super(FCBlock, self).__init__()
         self.fc = nn.Linear(input_dim, output_dim)
         self.relu = activation_cls()
+        self.bn = nn.BatchNorm1d(output_dim)
         self.dropout = nn.Dropout(dropout) if dropout > 0 else nn.Identity()
         
     def forward(self, data: torch.Tensor):
@@ -31,7 +32,7 @@ class FNN(nn.Module):
         layers_dict = OrderedDict()
         last_hidden_dim = config.input_dim
         for i, hidden_dim in enumerate(config.hidden_dims):
-            layers_dict[f'fcblock_{i}'] = FCBlock(last_hidden_dim, hidden_dim)
+            layers_dict[f'fcblock_{i}'] = FCBlock(last_hidden_dim, hidden_dim, dropout=config.dropout)
             last_hidden_dim = hidden_dim
         self.fc_layers = nn.Sequential(layers_dict)
         
