@@ -6,8 +6,8 @@ from torch.utils.data import random_split
 from metrics import CognPredMetrics
 
 # Set the config
-backbone_config = MLPConfig(
-    hidden_dims=[2048, 512, 128, 128],
+backbone_config = GCNConfig(
+    hidden_dims=[128, 64],
     dropout=0.0
 )
 config = PipelineConfig(
