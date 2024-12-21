@@ -4,13 +4,13 @@ from dataclasses import dataclass, field
 DATA_DIR = Path(__file__).parent / 'data'
 
 @dataclass
-class FNNConfig:
-    backbone_type: str = 'fnn'
+class MLPConfig:
+    backbone_type: str = 'mlp'
     hidden_dims: list[int] = field(default_factory=lambda: [512, 128, 32])
     dropout: float = 0.1
     
     def abbrev(self):
-        return f"fnn_hidden[{','.join(map(str, self.hidden_dims))}]_dropout{self.dropout}"
+        return f"mlp_hidden[{','.join(map(str, self.hidden_dims))}]_dropout{self.dropout}"
     
     @classmethod
     def from_abbrev(cls, abbrev: str):
@@ -21,7 +21,7 @@ class FNNConfig:
         dropout = float(params[2].removeprefix('dropout'))
         return cls(hidden_dims=hidden_dims, dropout=dropout)
 
-BackboneConfig = FNNConfig
+BackboneConfig = MLPConfig
 
 @dataclass
 class PipelineConfig:
