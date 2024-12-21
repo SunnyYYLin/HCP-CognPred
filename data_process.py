@@ -8,7 +8,7 @@ TARGETS_FILE = 'prediction_variables.txt'
 SUBJECT_IDS_FILE = 'HCP_list_Yeo.txt'
 BEHAVIOR_DATA_FILE = 'HCP_s1200.csv'
 DATA_FILE = 'rsfc_atlas400_753_4.npy'
-SUBJECT_KEY = '30Subject'
+SUBJECT_KEY = 'Subject'
 
 class HCPDataset(Dataset):
     def __init__(self, config: PipelineConfig):
