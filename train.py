@@ -4,12 +4,14 @@ from config import *
 from model.behav_pred import BehaviorPredictionModel
 from torch.utils.data import random_split
 from metrics import CognPredMetrics
+import os
+
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4,5"
 
 # Set the config
-backbone_config = GATConfig(
-    hidden_dims=[32, 16],
-    num_heads=[4, 2],
-    dropout=0.0
+backbone_config = MLPConfig(
+    hidden_dims=[4096, 1024, 256],
+    dropout=0.1,
 )
 config = PipelineConfig(
     pred_vars=[
@@ -47,7 +49,7 @@ args = TrainingArguments(
     per_device_eval_batch_size=64,
     logging_strategy='steps',
     eval_strategy='epoch',
-    eval_steps=1,
+    eval_steps=8,
     logging_dir=logging_dir,
     logging_steps=1,
     save_strategy='epoch',
@@ -55,7 +57,7 @@ args = TrainingArguments(
     save_total_limit=1,
     load_best_model_at_end=True,
     metric_for_best_model='r2',
-    max_grad_norm=1e4,
+    max_grad_norm=1.0,
     fp16=True,
     use_cpu=False,
 )

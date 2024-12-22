@@ -73,11 +73,11 @@ class PipelineConfig:
         self.target_dim = len(self.pred_vars)
         
     def abbrev(self):
-        return f"[{','.join(self.pred_vars)}]_by_{self.backbone_config.abbrev()}"
+        return f"{self.backbone_config.abbrev()}_vars[{','.join(self.pred_vars)}]"
     
     @classmethod
     def from_abbrev(cls, abbrev: str):
-        pred_vars, _, backbone = abbrev.partition('_by_')
+        backbone, _, pred_vars = abbrev.partition('_vars')
         pred_vars = pred_vars[1:-1].split(',')
         backbone = BackboneConfig.from_abbrev(backbone)
         return cls(pred_vars=pred_vars, backbone_config=backbone)
