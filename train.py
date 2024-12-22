@@ -9,21 +9,17 @@ import os
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4,5"
 
 # Set the config
-backbone_config = LinearRegressionConfig(
-    # hidden_dims=[256, 64],
-    # dropout=0.0,
+backbone_config = MLPConfig(
+    hidden_dims=[256, 64],
+    dropout=0.2,
 )
 config = PipelineConfig(
     pred_vars=[
-        "PicSeq_Unadj",
-        "CardSort_Unadj",
-        "Flanker_Unadj",
-        "PMAT24_A_CR",
-        "ReadEng_Unadj",
-        "PicVocab_Unadj",
-        "ProcSpeed_Unadj",
-        "DDisc_AUC_40K",
+        'Emotion_Task_Face_Acc',
+        'Relational_Task_Acc',
+        'WM_Task_Acc',
     ],
+    r2loss_weight=0,
     backbone_config=backbone_config
 )
 
@@ -57,7 +53,6 @@ args = TrainingArguments(
     save_total_limit=1,
     load_best_model_at_end=True,
     metric_for_best_model='mape',
-    max_grad_norm=1.0,
     fp16=True,
     use_cpu=False,
 )

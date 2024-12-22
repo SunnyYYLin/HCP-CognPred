@@ -109,17 +109,20 @@ class PipelineConfig:
     input_dim: int = -1
     target_dim: int = -1
     pred_vars: list[str] = field(default_factory=lambda: [])
+    r2loss_weight: float = 0.0
     backbone_config: BackboneConfig = None
     
     def __post_init__(self):
         self.target_dim = len(self.pred_vars)
         
     def abbrev(self):
-        return f"{self.backbone_config.abbrev()}_vars[{','.join(self.pred_vars)}]"
+        return f"{self.backbone_config.abbrev()}_vars[{','.join(self.pred_vars)}]_r2w{self.r2loss_weight}"
     
-    @classmethod
+    @classmethod # TODO
     def from_abbrev(cls, abbrev: str):
-        backbone, _, pred_vars = abbrev.partition('_vars')
-        pred_vars = pred_vars[1:-1].split(',')
+        backbone, _, pipeline = abbrev.partition('_vars')
+        args = pipeline.split('_')
+        pred_vars = args[0][1:-1].split(',')
+        r2loss_weight = float(args[1].removeprefix('r2w'))
         backbone = BackboneConfig.from_abbrev(backbone)
-        return cls(pred_vars=pred_vars, backbone_config=backbone)
+        return cls(pred_vars=pred_vars, backbone_config=backbone, r2loss_weight=r2loss_weight)

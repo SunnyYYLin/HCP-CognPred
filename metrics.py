@@ -16,6 +16,9 @@ class CognPredMetrics:
         """
         labels = torch.tensor(preds.label_ids, dtype=torch.float32)
         predictions = torch.tensor(preds.predictions, dtype=torch.float32)
+        if len(labels.shape) == 1:
+            labels = labels.unsqueeze(1)
+        
         results = {}
         
         # Calculate MAPE
@@ -26,7 +29,8 @@ class CognPredMetrics:
         # Calculate Pearson
         pearson = self.pearson(predictions, labels)
         for i, target in enumerate(self.pred_vars):
-            results[f"{target}_pearson"] = pearson[i]
+            results[f"{target}_pearson"] = pearson[i] \
+                if pearson.shape[0] > 1 else pearson.item()
         
         return results
         
