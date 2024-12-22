@@ -70,7 +70,10 @@ class GCN(nn.Module):
             layers_dict[f'gcnblock_{i}'] = GCNBlock(last_hidden_dim, hidden_dim, dropout=config.dropout)
             last_hidden_dim = hidden_dim
         self.gcn_layers = nn.Sequential(layers_dict)
-        self.pool = nn.AdaptiveMaxPool1d(1)
+        self.pool = nn.Sequential(
+            nn.LazyLinear(self.output_dim),
+            nn.ReLU()
+        )
         
     def forward(self, data: torch.Tensor, attention_mask: torch.Tensor=None):
         """_summary_
@@ -87,6 +90,6 @@ class GCN(nn.Module):
         x, edge_index = graphs.x, graphs.edge_index
         for layer in self.gcn_layers:
             x = layer(x, edge_index)
-        features = x.reshape(batch_size, -1, self.num_nodes) # (batch_size, hidden_dim, num_nodes)
-        features = self.pool(features).squeeze(-1) # (batch_size, hidden_dim)
+        features = x.reshape(batch_size, -1) # (batch_size, hidden_dim*num_nodes)
+        features = self.pool(features) # (batch_size, hidden_dim)
         return features
