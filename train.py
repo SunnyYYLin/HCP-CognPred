@@ -7,7 +7,7 @@ from metrics import CognPredMetrics
 
 # Set the config
 backbone_config = GCNConfig(
-    hidden_dims=[16, 32, 32],
+    hidden_dims=[32, 32],
     dropout=0.0
 )
 config = PipelineConfig(
