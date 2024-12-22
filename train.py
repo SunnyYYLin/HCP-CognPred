@@ -6,8 +6,9 @@ from torch.utils.data import random_split
 from metrics import CognPredMetrics
 
 # Set the config
-backbone_config = GCNConfig(
-    hidden_dims=[32, 32],
+backbone_config = GATConfig(
+    hidden_dims=[32, 16],
+    num_heads=[4, 2],
     dropout=0.0
 )
 config = PipelineConfig(

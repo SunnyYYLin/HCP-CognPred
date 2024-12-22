@@ -24,7 +24,7 @@ class MLPConfig:
 @dataclass
 class GCNConfig:
     backbone_type: str = 'gcn'
-    hidden_dims: list[int] = field(default_factory=lambda: [128, 64])
+    hidden_dims: list[int] = field(default_factory=lambda: [64, 32])
     dropout: float = 0.1
     
     def abbrev(self):
@@ -38,6 +38,26 @@ class GCNConfig:
         hidden_dims = list(map(int, hidden_dims))
         dropout = float(params[2].removeprefix('dropout'))
         return cls(hidden_dims=hidden_dims, dropout=dropout)
+    
+@dataclass
+class GATConfig:
+    backbone_type: str = 'gat'
+    hidden_dims: list[int] = field(default_factory=lambda: [64, 32])
+    num_heads: list[int] = field(default_factory=lambda: [4, 2])
+    dropout: float = 0.0
+    
+    def abbrev(self):
+        return f"gat_hidden[{','.join(map(str, self.hidden_dims))}]_heads{self.num_heads}_dropout{self.dropout}"
+    
+    @classmethod
+    def from_abbrev(cls, abbrev: str):
+        params = abbrev.split('_')
+        hidden_dims = params[1].removeprefix('hidden')
+        hidden_dims = hidden_dims[1:-1].split(',')
+        hidden_dims = list(map(int, hidden_dims))
+        num_heads = int(params[2].removeprefix('heads'))
+        dropout = float(params[3].removeprefix('dropout'))
+        return cls(hidden_dims=hidden_dims, num_heads=num_heads, dropout=dropout)
 
 BackboneConfig = MLPConfig
 
