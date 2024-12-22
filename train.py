@@ -6,12 +6,21 @@ from torch.utils.data import random_split
 from metrics import CognPredMetrics
 
 # Set the config
-backbone_config = MLPConfig(
-    hidden_dims=[2048, 512, 128, 128],
+backbone_config = GCNConfig(
+    hidden_dims=[32, 32],
     dropout=0.0
 )
 config = PipelineConfig(
-    pred_vars=['CardSort_Unadj', 'Flanker_Unadj'],
+    pred_vars=[
+        "PicSeq_Unadj",
+        "CardSort_Unadj",
+        "Flanker_Unadj",
+        "PMAT24_A_CR",
+        "ReadEng_Unadj",
+        "PicVocab_Unadj",
+        "ProcSpeed_Unadj",
+        "DDisc_AUC_40K",
+    ],
     backbone_config=backbone_config
 )
 
@@ -50,7 +59,7 @@ args = TrainingArguments(
     use_cpu=False,
 )
 call_backs = [
-    EarlyStoppingCallback(early_stopping_patience=10)
+    # EarlyStoppingCallback(early_stopping_patience=10)
 ]
 
 trainer = Trainer(
