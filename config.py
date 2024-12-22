@@ -59,7 +59,49 @@ class GATConfig:
         dropout = float(params[3].removeprefix('dropout'))
         return cls(hidden_dims=hidden_dims, num_heads=num_heads, dropout=dropout)
 
-BackboneConfig = MLPConfig
+@dataclass
+class LinearRegressionConfig:
+    backbone_type: str = 'lr'
+    
+    def abbrev(self):
+        return 'lr'
+    
+    @classmethod
+    def from_abbrev(cls, abbrev: str):
+        return cls()
+
+@dataclass
+class PartialLinearRegressionConfig:
+    backbone_type: str = 'plr'
+    hidden_dims: list[int] = field(default_factory=lambda: [256, 64])
+    dropout: float = 0.0
+    
+    def abbrev(self):
+        return f"plr_hidden[{','.join(map(str, self.hidden_dims))}]_dropout{self.dropout}"
+    
+    @classmethod
+    def from_abbrev(cls, abbrev: str):
+        params = abbrev.split('_')
+        hidden_dims = params[1].removeprefix('hidden')
+        hidden_dims = hidden_dims[1:-1].split(',')
+        hidden_dims = list(map(int, hidden_dims))
+        dropout = float(params[2].removeprefix('dropout'))
+        return cls(hidden_dims=hidden_dims, dropout=dropout)
+
+@dataclass
+class KernelRegressionConfig:
+    backbone_type: str = 'kernel'
+    kernel_type: str = 'rbf'
+    
+    def abbrev(self):
+        return f'kernel_{self.kernel_type}'
+    
+    @classmethod
+    def from_abbrev(cls, abbrev: str):
+        return cls()
+
+BackboneConfig = MLPConfig|GCNConfig|GATConfig\
+    |LinearRegressionConfig|PartialLinearRegressionConfig|KernelRegressionConfig
 
 @dataclass
 class PipelineConfig:
