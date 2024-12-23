@@ -27,11 +27,13 @@ class BehaviorPredictionModel(nn.Module):
         self.predictor = nn.LazyLinear(config.target_dim)
         self.mse = nn.MSELoss()
         self.r2loss = RectifiedR2Loss()
-        self.loss = lambda x, y: self.mse(x, y) + config.r2loss_weight*self.r2loss(x, y)
+        self.loss = lambda x, y: self.mse(x, y) \
+            + config.r2loss_weight*self.r2loss(x, y) \
+            + config.penalty_weight*torch.norm(self.predictor.weight, p=2)
         self._lazy_init()
         
     def _lazy_init(self):
-        dummy_input = torch.randn(1, self.input_dim)
+        dummy_input = torch.randn(1, self.input_dim).exp()
         self.forward(dummy_input)
         
     def forward(self, 
@@ -42,5 +44,6 @@ class BehaviorPredictionModel(nn.Module):
         predictions = self.predictor(features) # (batch_size, target_dim)
         results = {'predictions': predictions}
         if labels is not None:
-            results['loss'] = self.loss(predictions, labels.float())
+            loss = self.loss(predictions, labels.float())
+            results['loss'] = loss
         return results

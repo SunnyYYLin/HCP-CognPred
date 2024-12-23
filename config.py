@@ -25,6 +25,7 @@ class MLPConfig:
 class GCNConfig:
     backbone_type: str = 'gcn'
     hidden_dims: list[int] = field(default_factory=lambda: [64, 32])
+    num_nodes: list[int] = field(default_factory=lambda: [100, 25])
     dropout: float = 0.1
     
     def abbrev(self):
@@ -105,23 +106,39 @@ BackboneConfig = MLPConfig|GCNConfig|GATConfig\
 
 @dataclass
 class PipelineConfig:
+    pca: bool = False
     data_dir: str = DATA_DIR
     input_dim: int = -1
     target_dim: int = -1
     pred_vars: list[str] = field(default_factory=lambda: [])
     r2loss_weight: float = 0.0
+    penalty_weight: float = 0.0
     backbone_config: BackboneConfig = None
     
     def __post_init__(self):
         self.target_dim = len(self.pred_vars)
         
     def abbrev(self):
-        return f"{self.backbone_config.abbrev()}_r2w{self.r2loss_weight}"
+        abbr = f"{self.backbone_config.abbrev()}"
+        if self.r2loss_weight > 0:
+            abbr += f"_r2w{self.r2loss_weight}"
+        if self.penalty_weight > 0:
+            abbr += f"_penalty{self.penalty_weight}"
+        if self.pca:
+            abbr += '_pca'
+        return abbr
     
     @classmethod # TODO
     def from_abbrev(cls, abbrev: str):
         backbone, _, pipeline = abbrev.partition('_r2w')
         args = pipeline.split('_')
         r2loss_weight = float(args[0])
+        penalty_weight = float(args[1].removeprefix('penalty'))
+        pca = 'pca' in args
         backbone = BackboneConfig.from_abbrev(backbone)
-        return cls(backbone_config=backbone, r2loss_weight=r2loss_weight)
+        return cls(
+            backbone_config=backbone, 
+            r2loss_weight=r2loss_weight,
+            penalty_weight=penalty_weight,
+            pca=pca
+        )

@@ -8,6 +8,7 @@ TARGETS_FILE = 'prediction_variables.txt'
 SUBJECT_IDS_FILE = 'HCP_list_Yeo.txt'
 BEHAVIOR_DATA_FILE = 'HCP_s1200.csv'
 DATA_FILE = 'rsfc_Yeo400_753_GSR.npy'
+PCA_DATA_FILE = 'rsfc_Yeo400_753_GSR_pca.npy'
 SUBJECT_KEY = 'Subject'
 
 class HCPDataset(Dataset):
@@ -30,13 +31,15 @@ class HCPDataset(Dataset):
         self.behav_df[self.targets] = (self.behav_df[self.targets] - self.behav_df[self.targets].mean()) / self.behav_df[self.targets].std()
         print(f"Done! Shape: {self.behav_df.shape}")
         
-        print(f"Loading brain data from {DATA_FILE}")
-        self.brain_data = np.load(self.root / DATA_FILE)
+        data_file = PCA_DATA_FILE if config.pca else DATA_FILE
+        print(f"Loading brain data from {data_file}")
+        self.brain_data = np.load(self.root / data_file)
         print(f"Done! Shape: {self.brain_data.shape}")
         
         config.input_dim = self.dim_brain
         config.backbone_config.input_dim = self.dim_brain
         config.backbone_config.target_dim = self.dim_behav
+        self.backbone_type = config.backbone_config.backbone_type
         
     @property
     def dim_behav(self):
@@ -56,8 +59,9 @@ class HCPDataset(Dataset):
         bahav_data = np.array(bahav_data[self.targets].values)  # (1, num_targets)
         bahav_data = bahav_data.squeeze() # (num_targets,)
         func_data = self.brain_data[index]  # (dim_features,)
-        # normalization
         func_data = (func_data - func_data.mean()) / func_data.std()
+        if self.backbone_type == 'gcn':
+            func_data = np.exp(func_data)
         return {
             'input': func_data,
             'labels': bahav_data  

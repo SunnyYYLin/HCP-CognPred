@@ -11,14 +11,22 @@ import os
 # Set the config
 with open("data/prediction_variables.txt") as f:
     pred_vars = f.read().splitlines()
-backbone_config = PartialLinearRegressionConfig(
-    hidden_dims=[64],
-    dropout=0.0,
+backbone_config = GCNConfig(
+    hidden_dims=[64, 256, 1024],
+    num_nodes=[200, 100, 50],
+    dropout=0,
 )
+# backbone_config = LinearRegressionConfig()
+# backbone_config = MLPConfig(
+#     hidden_dims=[256, 64],
+#     dropout=0.2,
+# )
 config = PipelineConfig(
     pred_vars=pred_vars,
     r2loss_weight=0,
-    backbone_config=backbone_config
+    penalty_weight=0,
+    pca=False,
+    backbone_config=backbone_config,
 )
 
 # Load the dataset
@@ -39,11 +47,11 @@ logging_dir = Path(__file__).parent / 'logs' / config.abbrev()
 args = TrainingArguments(
     output_dir=output_dir,
     num_train_epochs=1024,
-    per_device_train_batch_size=64,
-    per_device_eval_batch_size=64,
+    per_device_train_batch_size=32,
+    per_device_eval_batch_size=32,
     logging_strategy='steps',
     eval_strategy='epoch',
-    eval_steps=8,
+    eval_steps=1,
     logging_dir=logging_dir,
     logging_steps=1,
     save_strategy='epoch',
