@@ -9,16 +9,14 @@ import os
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4,5"
 
 # Set the config
+with open("data/prediction_variables.txt") as f:
+    pred_vars = f.read().splitlines()
 backbone_config = MLPConfig(
     hidden_dims=[256, 64],
-    dropout=0.2,
+    dropout=0.0,
 )
 config = PipelineConfig(
-    pred_vars=[
-        'Emotion_Task_Face_Acc',
-        'Relational_Task_Acc',
-        'WM_Task_Acc',
-    ],
+    pred_vars=pred_vars,
     r2loss_weight=0,
     backbone_config=backbone_config
 )
@@ -52,12 +50,12 @@ args = TrainingArguments(
     save_steps=8,
     save_total_limit=1,
     load_best_model_at_end=True,
-    metric_for_best_model='mape',
+    metric_for_best_model='pearson',
     fp16=True,
     use_cpu=False,
 )
 call_backs = [
-    # EarlyStoppingCallback(early_stopping_patience=10)
+    EarlyStoppingCallback(early_stopping_patience=64)
 ]
 
 trainer = Trainer(

@@ -55,6 +55,8 @@ class HCPDataset(Dataset):
         bahav_data = np.array(bahav_data[self.targets].values)  # (1, num_targets)
         bahav_data = bahav_data.squeeze() # (num_targets,)
         func_data = self.brain_data[index]  # (dim_features,)
+        # normalization
+        func_data = (func_data - func_data.mean()) / func_data.std()
         return {
             'input': func_data,
             'labels': bahav_data  

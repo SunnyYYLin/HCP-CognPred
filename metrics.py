@@ -28,6 +28,7 @@ class CognPredMetrics:
             
         # Calculate Pearson
         pearson = self.pearson(predictions, labels)
+        results['pearson'] = pearson.mean().item()
         for i, target in enumerate(self.pred_vars):
             results[f"{target}_pearson"] = pearson[i] \
                 if pearson.shape[0] > 1 else pearson.item()
