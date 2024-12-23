@@ -7,7 +7,7 @@ from config import PipelineConfig
 TARGETS_FILE = 'prediction_variables.txt'
 SUBJECT_IDS_FILE = 'HCP_list_Yeo.txt'
 BEHAVIOR_DATA_FILE = 'HCP_s1200.csv'
-DATA_FILE = 'rsfc_atlas400_753_4.npy'
+DATA_FILE = 'rsfc_Yeo400_753_GSR.npy'
 SUBJECT_KEY = 'Subject'
 
 class HCPDataset(Dataset):
@@ -27,6 +27,7 @@ class HCPDataset(Dataset):
         self.behav_df = pd.read_csv(self.root / BEHAVIOR_DATA_FILE)
         self.behav_df = self.behav_df[self.targets + [SUBJECT_KEY]]
         self.behav_df = self.behav_df.sort_values(by=self.targets).reset_index(drop=True)
+        self.behav_df[self.targets] = (self.behav_df[self.targets] - self.behav_df[self.targets].mean()) / self.behav_df[self.targets].std()
         print(f"Done! Shape: {self.behav_df.shape}")
         
         print(f"Loading brain data from {DATA_FILE}")

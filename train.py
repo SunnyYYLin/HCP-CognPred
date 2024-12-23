@@ -11,8 +11,8 @@ import os
 # Set the config
 with open("data/prediction_variables.txt") as f:
     pred_vars = f.read().splitlines()
-backbone_config = MLPConfig(
-    hidden_dims=[256, 64],
+backbone_config = PartialLinearRegressionConfig(
+    hidden_dims=[64],
     dropout=0.0,
 )
 config = PipelineConfig(

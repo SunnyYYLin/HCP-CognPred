@@ -1,12 +1,12 @@
 import torch
-from torchmetrics import MeanAbsolutePercentageError, PearsonCorrCoef
+from torchmetrics import MeanAbsoluteError, PearsonCorrCoef
 from transformers import EvalPrediction
 from config import PipelineConfig
 
 class CognPredMetrics:
     def __init__(self, config: PipelineConfig):
         self.pred_vars = config.pred_vars
-        self.mape = MeanAbsolutePercentageError()
+        self.mae = MeanAbsoluteError()
         self.pearson = PearsonCorrCoef(num_outputs=config.target_dim)
         
     def __call__(self, preds: EvalPrediction):
@@ -22,9 +22,9 @@ class CognPredMetrics:
         results = {}
         
         # Calculate MAPE
-        results['mape'] = self.mape(predictions, labels)
+        results['mae'] = self.mae(predictions, labels)
         for i, target in enumerate(self.pred_vars):
-            results[f"{target}_mape"] = self.mape(predictions[:, i], labels[:, i])
+            results[f"{target}_mae"] = self.mae(predictions[:, i], labels[:, i])
             
         # Calculate Pearson
         pearson = self.pearson(predictions, labels)
