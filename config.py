@@ -29,36 +29,35 @@ class GCNConfig:
     dropout: float = 0.1
     
     def abbrev(self):
-        return f"gcn_hidden[{','.join(map(str, self.hidden_dims))}]_dropout{self.dropout}"
+        return f"gcn_hidden{self.hidden_dims}_nodes{self.num_nodes}_dropout{self.dropout}"
     
     @classmethod
     def from_abbrev(cls, abbrev: str):
         params = abbrev.split('_')
-        hidden_dims = params[1].removeprefix('hidden')
-        hidden_dims = hidden_dims[1:-1].split(',')
-        hidden_dims = list(map(int, hidden_dims))
-        dropout = float(params[2].removeprefix('dropout'))
-        return cls(hidden_dims=hidden_dims, dropout=dropout)
+        hidden_dims = eval(params[1].removeprefix('hidden'))
+        num_nodes = eval(params[2].removeprefix('nodes'))
+        dropout = float(params[3].removeprefix('dropout'))
+        return cls(hidden_dims=hidden_dims, num_nodes=num_nodes, dropout=dropout)
     
 @dataclass
 class GATConfig:
     backbone_type: str = 'gat'
     hidden_dims: list[int] = field(default_factory=lambda: [64, 32])
     num_heads: list[int] = field(default_factory=lambda: [4, 2])
+    num_nodes: list[int] = field(default_factory=lambda: [100, 25])
     dropout: float = 0.0
     
     def abbrev(self):
-        return f"gat_hidden[{','.join(map(str, self.hidden_dims))}]_heads{self.num_heads}_dropout{self.dropout}"
+        return f"gat_hidden{self.hidden_dims}_nodes{self.num_nodes}_heads{self.num_heads}_dropout{self.dropout}"
     
     @classmethod
     def from_abbrev(cls, abbrev: str):
         params = abbrev.split('_')
-        hidden_dims = params[1].removeprefix('hidden')
-        hidden_dims = hidden_dims[1:-1].split(',')
-        hidden_dims = list(map(int, hidden_dims))
-        num_heads = int(params[2].removeprefix('heads'))
-        dropout = float(params[3].removeprefix('dropout'))
-        return cls(hidden_dims=hidden_dims, num_heads=num_heads, dropout=dropout)
+        hidden_dims = eval(params[1].removeprefix('hidden'))
+        num_nodes = eval(params[2].removeprefix('nodes'))
+        num_heads = eval(params[3].removeprefix('heads'))
+        dropout = float(params[4].removeprefix('dropout'))
+        return cls(hidden_dims=hidden_dims, num_nodes=num_nodes, num_heads=num_heads, dropout=dropout)
 
 @dataclass
 class LinearRegressionConfig:

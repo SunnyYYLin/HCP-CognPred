@@ -58,10 +58,11 @@ class HCPDataset(Dataset):
         bahav_data = self.behav_df[self.behav_df[SUBJECT_KEY] == self.id2subject[index]]
         bahav_data = np.array(bahav_data[self.targets].values)  # (1, num_targets)
         bahav_data = bahav_data.squeeze() # (num_targets,)
-        func_data = self.brain_data[index]  # (dim_features,)
-        func_data = (func_data - func_data.mean()) / func_data.std()
+        func_data: np.ndarray = self.brain_data[index]  # (dim_features,)
         if self.backbone_type == 'gcn':
-            func_data = np.exp(func_data)
+            func_data = func_data + 1
+        else:
+            func_data = (func_data - func_data.mean()) / func_data.std()
         return {
             'input': func_data,
             'labels': bahav_data  

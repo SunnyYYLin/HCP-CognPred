@@ -50,7 +50,7 @@ class GCN(nn.Module):
             last_num_nodes = config.num_nodes[i]
         self.gcn_layers = nn.Sequential(layers_dict)
         # self.pool = nn.Linear(last_num_nodes * self.output_dim, self.output_dim)
-        self.pool = gnn.global_max_pool
+        self.pool = lambda x, batch: torch.cat([gnn.global_mean_pool(x, batch), gnn.global_max_pool(x, batch)], dim=-1)
         
     def forward(self, data: torch.Tensor, attention_mask: torch.Tensor=None):
         """_summary_

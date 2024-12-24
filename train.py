@@ -11,9 +11,15 @@ import os
 # Set the config
 with open("data/prediction_variables.txt") as f:
     pred_vars = f.read().splitlines()
-backbone_config = GCNConfig(
-    hidden_dims=[64, 256, 1024],
-    num_nodes=[200, 100, 50],
+# backbone_config = GCNConfig(
+#     hidden_dims=[64, 256, 1024],
+#     num_nodes=[200, 100, 50],
+#     dropout=0,
+# )
+backbone_config = GATConfig(
+    hidden_dims=[32, 16],
+    num_nodes=[200, 100],
+    num_heads=[4, 2],
     dropout=0,
 )
 # backbone_config = LinearRegressionConfig()
